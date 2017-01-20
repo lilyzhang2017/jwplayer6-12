@@ -1,0 +1,342 @@
+<!DOCTYPE HTML>
+<html>
+<param name="allowScriptAccess" value="always" />
+ <head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>JWPlayer </title>
+<script src="store/1.3.14/store-debug.js" ></script>
+<script src="bin-debug/jwplayer.js" ></script>
+<!--script src="../jquery-1.8.2.js"></script-->
+
+ 
+
+</head>
+<body>
+ 
+    <div id="video-box">Loading the player...</div>
+  </div>
+
+<div class="target"></div>
+<script type="text/javascript">
+var videoName ="http://vod.sac.net.cn/masvod/public/2013/03/18/20130318_13d7c646d39_r27_400k2.mp4"; 
+//var videoName="http://video.mukewang.com/mk.mp4";
+
+//videoName="http://video.mukewang.com/86c47cd6-ba30-43ee-a6f4-5b0533294a42/H.mp4";
+
+var thePlayer ;
+
+var changeQuality=false;
+function initPlayer(primary,time){
+ var seek = null;
+ var iscomplete=false;
+ var fullscreens=true;
+ thePlayer = jwplayer("video-box").setup({
+    //primary: "flash",
+      primary:"html5",
+     
+    //primary: primary,
+    width:'862',//860,//1200,600'100%',//
+    height:'450',//530,//530,360'100%',//
+    showset:true,//是否显示设置,true ：显示，false：不显示
+   // ish5:checkH5(),//是否可以切换h5模式,true ：是，false：否
+    //displaytitle:true,
+    autostart:false,
+    file:  videoName,
+   //file:url,
+    //repeat:true,
+    //setControls:false,
+   //image: "JW.jpg",
+               /* sources: [{
+                  file:  videoName,
+
+                    label: "自动",
+                    "default": true,
+                },{
+                    file: videoName,
+                    label: "普清"
+                  
+                },{
+                    file: videoName,
+                    label: "超清"
+                }],*/
+           
+
+   events: {
+            onReady: function() {//
+             console.log("onReady-----requsetCount:"+requsetCount);
+             
+            //   var isfull = store.get('isfull') || false;
+            //   this.pause();
+            // // this.setFullscreen(true);
+            //   var autoplay=this.getAutoPlay();
+            //   // console.log("isfull-----"+isfull+'----isauto'+isauto);
+            //    /*if(isauto && isfull){
+            //       this.setFullscreen(true);
+            //     }*/
+
+            },
+            onPlay:function(callback){//开始播放－缓冲结束
+            //  this.hideErrorWin()
+              if(fullscreens){
+                 //this.setFullscreen(true);
+                 fullscreens=false;
+              } 
+              
+            },
+           
+            onComplete:function(callback){//开始播放－缓冲结束
+            //  this.hideErrorWin()
+              iscomplete=true;
+              console.log("oncomplete----getFullscreen-"+this.getFullscreen()+'----');
+            },
+        onBuffer:function(callback){//缓冲状态，缓冲图标显示
+          
+         // playerWaitTime=new Date().getTime();
+          //console.log(playerWaitTime+"=onBuffer------");
+        },
+        onQualityChange:function(callback){
+          requsetCount=0;
+          console.log("=onQualityChange------"+this.getCurrentQuality());
+         //  hdArr.push(thePlayer.getCurrentQuality());
+         //  switchType=2;
+         // changeQuality=true;
+        },
+        onQualityLevels:function(callback){
+          //inint----
+          // 
+          // initFeedbackInfo();
+          // hdArr.push(thePlayer.getCurrentQuality());
+          // switchType=1;
+
+        },
+        onplaylist:function(){
+          console.log("=onQualityLevels------");
+        },
+        onplaylistitem:function(){
+          console.log("=onQualityLevels------");
+        },
+         onplaylistcomplete:function(){
+          console.log("=onplaylistcomplete------");
+        },
+        onFullscreen:function(callback){
+         // sendVideoTestData(0,"",4);
+         var full=callback.fullscreen;
+          if(!iscomplete){
+           
+           store.set('isfull',full);
+           console.log('onFullscreen---'+full);
+           console.log('is onComplete---');
+          }
+
+          console.log('onFullscreen-----------------'+full);
+        },
+        onError:function (callback){
+         
+         // console.log(switchType+'=switchType-----------------');
+        /*  if(switchType==2){
+            getEncryption(thePlayer.getCurrentQuality());
+            switchType=0;
+          }else{
+         //console.log(thePlayer.getCurrentQuality()+'=Current  old='+hdArr[hdArr.length-1]);
+          sendVideoTestData(new Date().getTime()-playerWaitTime,callback.message,3);*/
+         //
+          
+        //}
+         loadNewVideo(callback.message);
+        //thePlayer.showErrorWin();
+    }
+  }
+});
+
+
+//  thePlayer.onSpeedChange=function(){
+//     speedArr.push(document.getElementById('speedTxt').innerHTML);
+//     sendVideoTestData(0,"",5);
+//     }
+
+ }
+
+
+
+function initFeedbackInfo(){
+  hdArr=[""];
+  speedArr=[""];
+  //
+  var speed='1.0 X';
+  if(thePlayer.getRenderingMode()=='html5'){
+    speed=document.getElementById('speedTxt').innerHTML;
+
+  }
+  speedArr.push(speed);
+}
+var mode2 = store.get('mode') || 'html5';
+//initPlayer("flash",0);
+initPlayer(mode2,0);
+var arry=[""];
+  //线路切换------------------------------
+//1初始；2切换hd；3出错；4全屏切换；5速度切换
+  //线路切换
+var requsetCount=0;
+var playerWaitTime=0,hdArr,speedArr,switchType=0;
+function loadNewVideo(message) {
+  requsetCount++;
+  console.log(requsetCount+'------------------end---')
+  if(requsetCount>=2){ //3次仍访问不了，返回错误提示界面
+    requsetCount=0;
+    thePlayer.showErrorWin();
+    return;
+  }
+    /**return;
+   var urlname=videoName2.split('/');
+   
+
+    var urlArr=videoName2.split("/");
+    switch(urlArr[2]){
+      case "v1.mukewang.com"://1 v1-->video
+        videoName=videoName.replace(/v1/,"video");
+       // videoName2="http://video.mukewang.com/mk.mp4",
+       // console.log(videoName+"----1 v1-->video----"+requsetCount)
+        break;
+      case "v1.imooc.com"://2 video-->v1
+        videoName=videoName.replace(/v1.imooc.com/,"v1.mukewang.com");
+        break;
+      case "video.mukewang.com"://2 video.mukewang-->v1.imooc
+       videoName=videoName.replace(/video.mukewang.com/,"v1.imooc.com");
+      // videoName2="http://video.mukewang.com/mk.mp4"
+        break;
+    }*/
+     
+    jwLoad(); 
+}
+function jwLoad(){
+  thePlayer.load([{
+    sources: [{
+        file: url,
+       // file:"http://video.mukewang.com/mk.mp4",
+        label: "普清",
+        "default": true
+      },{
+        file:url,
+        //file: "http://video.mukewang.com/mk.mp4",
+        label: "高清"
+      },{
+        file: url,
+        //file:"http://video.mukewang.com/mk.mp4",
+        label: "超清"
+      }],
+
+    }]);
+   thePlayer.play();
+}
+
+function sendVideoTestData(bufferTime,msg){
+  var renderingMode=1;
+  var item = jwplayer().getPlaylistItem();
+  //console.log(jwplayer().getPlaylistItem()+"==item111111111111111111");
+  var playerCurrentHd=jwplayer().getCurrentQuality();
+  
+  var videoUrl=item.sources[playerCurrentHd].file;
+
+  if(thePlayer.getRenderingMode()=="html5"){
+    renderingMode=0;
+    videoUrl=videoUrl.replace(/\.flv\s*$/,".mp4");
+  }
+  if(msg==""){
+    msg="Error loading media: File not found-";
+  }
+
+  $.post("/course/collectvideo",{
+    renderingMode:renderingMode,
+    bufferTime:bufferTime,
+    videoFileName:videoUrl,
+    videoId:pageInfo.mid,
+    errorMsg:msg,
+    source:1
+  });
+
+}
+
+//console.log(encryptObj.h+'****************');
+window.switchjwplayer=switchjwplayer;
+function switchjwplayer(getRenderingMode){
+    var time=thePlayer.getPosition();
+    var mode=getRenderingMode;
+    thePlayer.remove();
+    switchType=2;
+    store.set('mode', mode);
+    initPlayer(mode,time);
+
+}
+
+window.flashToJs=flashToJs;
+ function flashToJs(s){
+   console.log(s+"  to Flash");
+ }
+
+ //是否连续播放--
+var isplay=false;
+window.playContinue=playContinue;
+function playContinue(){
+ // isplay=_isplay;
+  //store.set('isplay', isplay);
+ // console.log("=================autoplay");
+  isplay=jwplayer().getAutoPlay();
+ // console.log(isplay+"===autoplay")
+}
+//获取连续播放状态----
+  window.playerAutoplay=playerAutoplay;
+  function playerAutoplay(){
+    //isplay = store.get('isplay') || false;
+    isplay=false;
+    return isplay;
+  }
+
+
+ function resizePlayer(){
+    if(jwplayer().getWidth() == 860) { 
+      jwplayer().resize(1200,530); 
+    } else {
+      jwplayer().resize(860,530);
+    }
+    //console.log(jwplayer().getState())
+  };
+
+
+function checkH5() {
+    if (window.applicationCache) {
+      
+      return true;
+    }else{  
+
+      return false;
+    }  
+}
+
+
+function showWin(){
+ // console.log("-------*-*********")
+   // thePlayer.showErrorWin();
+  console.log(thePlayer.getPlaylistItem().file)
+}
+function hideWin(){
+ // console.log('error=-=-=-=-=-=-=')
+  jwplayer().hideErrorWin();
+
+}
+ var url='http://video.mukewang.com/mk.mp4';
+function reload(){
+ 
+  jwLoad()
+  console.log('reload-------')
+}
+
+</script>
+<button type="button"  onclick="reload()"  id="reload">reload</button>
+<button type="button"  onclick="showWin()"  id="222">show</button>
+<button type="button" onclick="hideWin()" id="btn4">hide</button>
+</body>
+
+
+
+</html>
